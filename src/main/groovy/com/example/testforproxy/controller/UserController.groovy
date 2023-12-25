@@ -10,10 +10,12 @@ import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "User management", description = "Endpoints for managing users")
@@ -37,5 +39,23 @@ class UserController {
                                       @RequestBody @Valid UserUpdateRequestDto infoRequest) {
         User user = (User) authentication.getPrincipal()
         userService.updateUserInfo(user, infoRequest)
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PutMapping("/connect")
+    @Operation(summary = "Connect to friend", description = "Connect to friend by friend id")
+    void connectToUser(Authentication authentication,
+                               @RequestParam String friendId) {
+        User user = (User) authentication.getPrincipal()
+        userService.connect(user, friendId)
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/connect")
+    @Operation(summary = "Disconnect from friend", description = "Disconnect from friend by friend id")
+    void disconnectToUser(Authentication authentication,
+                       @RequestParam String friendId) {
+        User user = (User) authentication.getPrincipal()
+        userService.disconnect(user, friendId)
     }
 }

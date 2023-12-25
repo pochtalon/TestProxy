@@ -1,8 +1,9 @@
-package com.example.testforproxy.mapper
+package com.example.testforproxy.mapper.impl
 
 import com.example.testforproxy.dto.user.UserInfoDto
 import com.example.testforproxy.dto.user.auth.UserRegistrationRequestDto
 import com.example.testforproxy.dto.user.auth.UserResponseDto
+import com.example.testforproxy.mapper.UserMapper
 import com.example.testforproxy.model.User
 import org.springframework.stereotype.Component
 

@@ -4,6 +4,7 @@ import com.example.testforproxy.dto.user.UserInfoDto
 import com.example.testforproxy.dto.user.UserUpdateRequestDto
 import com.example.testforproxy.dto.user.auth.UserRegistrationRequestDto
 import com.example.testforproxy.dto.user.auth.UserResponseDto
+import com.example.testforproxy.exception.EntityNotFoundException
 import com.example.testforproxy.exception.RegistrationException
 import com.example.testforproxy.mapper.UserMapper
 import com.example.testforproxy.model.User
@@ -28,6 +29,8 @@ class UserServiceImpl implements UserService {
 
         User user = userMapper.toModel(request)
         user.password = passwordEncoder.encode(request.password)
+        user.friends = Collections.emptySet()
+        user.posts = Collections.emptyList()
         user.roles = Set.of(User.RoleName.ROLE_USER)
         User savedUser = userRepository.save(user)
         userMapper.toDto(savedUser)
@@ -42,6 +45,22 @@ class UserServiceImpl implements UserService {
     UserInfoDto updateUserInfo(User user, UserUpdateRequestDto infoRequest) {
         userUpdate(user, infoRequest)
         userMapper.toInfoDto(userRepository.save(user))
+    }
+
+    @Override
+    void connect(User user, String friendId) {
+        def friend = userRepository.findById(friendId).orElseThrow(() ->
+            new EntityNotFoundException("User with id " + friendId + " was not found"))
+        user.friends.add(friend)
+        userRepository.save(user)
+    }
+
+    @Override
+    void disconnect(User user, String friendId) {
+        def friend = userRepository.findById(friendId).orElseThrow(() ->
+                new EntityNotFoundException("User with id " + friendId + " was not found"))
+        user.friends.removeElement(friend)
+        userRepository.save(user)
     }
 
     private void userUpdate(User user, UserUpdateRequestDto infoRequest) {

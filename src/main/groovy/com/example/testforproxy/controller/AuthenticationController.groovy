@@ -37,13 +37,4 @@ class AuthenticationController {
     UserLoginResponseDto login(@RequestBody @Valid UserLoginRequestDto request) {
         authenticationService.authenticate(request)
     }
-
-    @GetMapping('/logout')
-    @Operation(summary = 'logout user')
-    void logout() {
-        println(SecurityContextHolder.context.authentication)
-        SecurityContextHolder.clearContext()
-        println(SecurityContextHolder.context.authentication)
-//        authenticationService.logout()
-    }
 }

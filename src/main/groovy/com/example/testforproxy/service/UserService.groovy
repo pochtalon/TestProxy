@@ -12,4 +12,8 @@ interface UserService {
     UserInfoDto getUserInfo(User user)
 
     UserInfoDto updateUserInfo(User user, UserUpdateRequestDto userUpdateRequestDto)
+
+    void connect(User user, String friendId)
+
+    void disconnect(User user, String friendId)
 }
