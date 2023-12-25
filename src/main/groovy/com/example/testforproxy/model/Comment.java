@@ -1,7 +1,23 @@
 package com.example.testforproxy.model;
 
-import jakarta.persistence.Entity;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import java.time.LocalDateTime;
 
-@Entity
-public class Comment {
+@Document(collection = "comments")
+class Comment {
+    @Id
+    String id;
+    String text;
+    LocalDateTime time;
+    User user;
+
+    Comment() {}
+
+    Comment(String id, String text, LocalDateTime time, User user) {
+        this.id = id;
+        this.text = text;
+        this.time = time;
+        this.user = user;
+    }
 }
