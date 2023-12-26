@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.data.domain.Pageable
 
 @Tag(name = "Posts management", description = "Endpoints for managing posts")
 @RestController
@@ -53,6 +54,13 @@ class PostController {
     void deletePost(Authentication authentication, @RequestParam String postId) {
         User user = (User) authentication.getPrincipal()
         postService.delete(user, postId)
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @GetMapping()
+    @Operation(summary = "Get all user's post", description = "Get all user's post by user's id")
+    List<PostDto> getAllPostByUserId(@RequestParam String userId, Pageable page) {
+        postService.getPostsForUser(userId, page)
     }
 
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
@@ -88,5 +96,12 @@ class PostController {
                           @PathVariable String postId) {
         User user = (User) authentication.getPrincipal()
         postService.addComment(postId, user, requestDto)
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @GetMapping('/{postId}/comments')
+    @Operation(summary = "Get comments", description = "Get comments to post by post id")
+    List<CommentDto> getComments(@PathVariable String postId, Pageable page) {
+        postService.getComments(postId, page)
     }
 }

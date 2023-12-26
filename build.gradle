@@ -37,13 +37,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    implementation 'org.mapstruct:mapstruct:1.5.3.Final'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
-    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
-
-//    implementation 'org.mongodb:mongo-java-driver:3.12.14'
-
-//    implementation 'org.springframework.data:spring-data-mongodb:4.2.1'
+    implementation 'com.github.paginationspring:pagination:1.0.3'
 
     implementation 'org.hibernate:hibernate-validator:6.0.13.Final'
     implementation 'org.springframework.boot:spring-boot-starter'

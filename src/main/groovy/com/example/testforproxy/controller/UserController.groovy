@@ -1,5 +1,6 @@
 package com.example.testforproxy.controller
 
+import com.example.testforproxy.dto.post.PostDto
 import com.example.testforproxy.dto.user.UserInfoDto
 import com.example.testforproxy.dto.user.UserUpdateRequestDto
 import com.example.testforproxy.model.User
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -39,6 +41,22 @@ class UserController {
                                       @RequestBody @Valid UserUpdateRequestDto infoRequest) {
         User user = (User) authentication.getPrincipal()
         userService.updateUserInfo(user, infoRequest)
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/me")
+    @Operation(summary = "Delete user", description = "Delete current user")
+    void deleteUser(Authentication authentication) {
+        User user = (User) authentication.getPrincipal()
+        userService.deleteUser(user)
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @GetMapping("/me/feed")
+    @Operation(summary = "Get feed", description = "Get feed for current user")
+    List<PostDto> getFeed(Authentication authentication, Pageable pageable) {
+        User user = (User) authentication.getPrincipal()
+        userService.getFeed(user, pageable)
     }
 
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
