@@ -13,15 +13,18 @@ import com.example.testforproxy.model.Post
 import com.example.testforproxy.model.User
 import com.example.testforproxy.repository.CommentRepository
 import com.example.testforproxy.repository.PostRepository
+import com.example.testforproxy.repository.UserRepository
 import com.example.testforproxy.service.PostService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
+import org.springframework.data.domain.Pageable
 import java.time.LocalDateTime
 
 @Service
 class PostServiceImpl implements PostService {
     @Autowired PostRepository postRepository
+    @Autowired UserRepository userRepository
     @Autowired PostMapper postMapper
     @Autowired CommentRepository commentRepository
     @Autowired CommentMapper commentMapper
@@ -81,6 +84,31 @@ class PostServiceImpl implements PostService {
         post.getComments().add(comment)
         postRepository.save(post)
         commentMapper.toDto(comment)
+    }
+
+    @Override
+    List<PostDto> getPostsForUser(String userId, Pageable page) {
+        def user = userRepository.findById(userId).orElseThrow(() ->
+                new EntityNotFoundException("User with id " + userId + " was not found"))
+        user.posts.stream()
+                .sorted((p1, p2) -> p2.time <=> p1.time)
+                .skip(page.pageNumber * page.pageSize)
+                .limit(page.pageSize)
+                .map {postMapper::toDto}
+                .collect()
+    }
+
+    @Override
+    List<CommentDto> getComments(String postId, Pageable page) {
+        def post = postRepository.findById(postId).orElseThrow () ->
+                new EntityNotFoundException("Post with id " + postId + " was not found")
+        post.comments.stream()
+                .sorted((c1, c2) -> c2.time <=> c1.time)
+                .skip(page.pageNumber * page.pageSize)
+                .limit(page.pageSize)
+                .map {commentMapper::toDto}
+                .collect()
+
     }
 
     private Post getPostById(String id, User user) {
