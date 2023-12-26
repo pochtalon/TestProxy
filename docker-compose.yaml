@@ -1,0 +1,39 @@
+version: "3.8"
+
+name: test-proxy-container
+services:
+  mongodb:
+    image: mongo
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $ROOT_NAME
+      MONGO_INITDB_ROOT_PASSWORD: $ROOT_PASSWORD
+      MONGO_INITDB_DATABASE: $MONGO_DATABASE
+    ports:
+      - $MONGO_LOCAL_PORT:$MONGO_DOCKER_PORT
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+  app:
+    depends_on:
+      - mongodb
+    restart: on-failure
+    image: proxy-seller
+    build: .
+    env_file:
+      - ./.env
+    ports:
+      - $SPRING_LOCAL_PORT:$SPRING_DOCKER_PORT
+      - $DEBUG_PORT:$DEBUG_PORT
+    environment:
+      SPRING_APPLICATION_JSON: '{
+        "spring.datasource.url" : "jdbc:mongodb://mongodb:$MONGO_DOCKER_PORT/$MONGO_DATABASE",
+        "spring.datasource.username" : "$ROOT_NAME",
+        "spring.datasource.password" : "$ROOT_PASSWORD"
+      }'
+      JAVA_TOOL_OPTION: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
